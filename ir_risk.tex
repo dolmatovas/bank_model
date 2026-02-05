@@ -1,0 +1,281 @@
+\documentclass[11pt]{article}
+
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage[T2A]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[russian]{babel}
+
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{mathtools}
+\usepackage{hyperref}
+
+\title{Игрушечная модель процентного риска БК в непрерывном времени: FV, дефолт и оптимальное управление}
+\author{}
+\date{}
+
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\Q}{\mathbb{Q}}
+\newcommand{\Pp}{\mathbb{P}}
+\newcommand{\1}{\mathbf{1}}
+
+\begin{document}
+\maketitle
+
+\section{Обзор модели}
+Рассматривается упрощённый банковский бизнес: банк непрерывно выдаёт кредиты с фиксированной ставкой (купон фиксируется в момент выдачи) и фондирует их по короткой ставке $r_t$. Процентный риск возникает из-за того, что стоимость фондирования мгновенно реагирует на изменения $r_t$, а средняя доходность кредитного портфеля меняется медленно, поскольку определяется историей выдач.
+
+Работа ведётся в непрерывном времени. Все процессы адаптированы к фильтрации $(\mathcal{F}_t)_{t\ge 0}$ на вероятностном пространстве $(\Omega,\mathcal{F},\Pp)$ (реальная мера) и эквивалентной мере $\Q$ (риск-нейтральная мера). Если не оговорено иное, динамики выписаны под общей мерой $M\in\{\Pp,\Q\}$.
+
+\section{Динамика короткой ставки (Vasicek)}
+Короткая ставка $(r_t)_{t\ge 0}$ следует модели Васичека:
+\begin{equation}
+dr_t = \kappa(\theta^{M}-r_t)\,dt + \sigma\,dW_t^{M},
+\qquad r_0 \ \text{задано},
+\label{eq:vasicek}
+\end{equation}
+где $\kappa>0$ --- скорость возврата к среднему, $\sigma>0$ --- волатильность, $\theta^{M}$ --- долгосрочный уровень под мерой $M$.
+
+Далее предполагается, что $\Pp$ и $\Q$ отличаются только параметром долгосрочного уровня:
+\[
+\theta^{\Pp} \neq \theta^{\Q}, \qquad \kappa,\sigma \ \text{одинаковы под обеими мерами.}
+\]
+
+\section{Состояние баланса и управление}
+Вводим следующие переменные состояния:
+\begin{itemize}
+  \item $L_t \ge 0$ --- объём (ноционал) кредитного портфеля (позиция);
+  \item $\bar c_t$ --- средняя (book) ставка/купон по outstanding кредитам;
+  \item $K_t$ --- капитал, выделенный на бизнес (поглощает убытки от процентного риска);
+  \item $u_t \ge 0$ --- управление (интенсивность выдачи).
+\end{itemize}
+
+Для простоты амортизацию/выбытие кредитов моделируем \emph{экспоненциальным runoff} с интенсивностью
+\[
+\lambda := \frac{1}{T},
+\]
+где $T$ интерпретируется как эффективная средняя жизнь портфеля (например, $T=5$ лет).
+
+\subsection{Динамика объёма позиции}
+Пусть абсолютный поток новых выдач (origination) равен
+\begin{equation}
+q_t := u_t \,\lambda L_t,
+\label{eq:qdef}
+\end{equation}
+то есть $u_t$ --- \emph{относительное} управление:
+\begin{itemize}
+  \item $u_t=1$: выдачи компенсируют runoff, $L_t$ примерно постоянно;
+  \item $u_t<1$: портфель сокращается;
+  \item $u_t>1$: портфель растёт.
+\end{itemize}
+Тогда динамика объёма:
+\begin{equation}
+dL_t = (q_t - \lambda L_t)\,dt = \lambda L_t (u_t-1)\,dt.
+\label{eq:Ldyn}
+\end{equation}
+
+\subsection{Ставка новых выдач и динамика средней ставки}
+Новые кредиты выдаются по купону
+\begin{equation}
+c_t^{\mathrm{new}} = r_t + s(u_t),
+\label{eq:newcoupon}
+\end{equation}
+где $s(u)$ --- спред, зависящий от темпа выдачи (например, при агрессивном росте спред может снижаться).
+
+Ключевой момент: динамика средней ставки должна зависеть от \emph{доли нового притока} относительно outstanding. Введём ``купонный номинал''
+\[
+A_t := L_t\,\bar c_t.
+\]
+За $dt$:
+\begin{itemize}
+  \item выбытие $\lambda L_t dt$ уносит средний купон $\bar c_t$ $\Rightarrow$ вклад $-\lambda L_t \bar c_t\,dt$ в $dA_t$;
+  \item новые выдачи $q_t dt$ приходят с купоном $c_t^{\mathrm{new}}$ $\Rightarrow$ вклад $+q_t c_t^{\mathrm{new}}\,dt$ в $dA_t$.
+\end{itemize}
+Отсюда
+\[
+dA_t = (q_t c_t^{\mathrm{new}} - \lambda L_t \bar c_t)\,dt,
+\qquad
+dL_t = (q_t - \lambda L_t)\,dt.
+\]
+Дифференцируя $\bar c_t=A_t/L_t$, получаем
+\begin{equation}
+d\bar c_t = \frac{q_t}{L_t}\big(c_t^{\mathrm{new}}-\bar c_t\big)\,dt.
+\label{eq:cbardyn_general}
+\end{equation}
+С учётом \eqref{eq:qdef} и \eqref{eq:newcoupon}:
+\begin{equation}
+d\bar c_t = u_t\,\lambda\big(r_t + s(u_t) - \bar c_t\big)\,dt.
+\label{eq:cbardyn}
+\end{equation}
+
+Замечание: при $u_t=0$ новых выдач нет, и \eqref{eq:cbardyn} даёт $d\bar c_t=0$ --- средняя ставка портфеля замораживается, что соответствует интуиции.
+
+\subsection{Процентный доход и динамика капитала}
+Мгновенная ставка чистого процентного дохода (до кредитного риска и расходов):
+\begin{equation}
+\pi_t = L_t(\bar c_t - r_t).
+\label{eq:profitrate}
+\end{equation}
+Капитал накапливает прибыль (дивиденды не рассматриваются):
+\begin{equation}
+dK_t = \pi_t\,dt = L_t(\bar c_t - r_t)\,dt.
+\label{eq:Kdyn}
+\end{equation}
+
+\section{Справедливая стоимость (FV) на бесконечном горизонте}
+Определим справедливую стоимость (economic value) как дисконтированное ожидание будущих потоков под мерой $\Q$:
+\begin{equation}
+\mathrm{FV}(x)
+=
+\E^{\Q}\left[\int_{0}^{\infty}
+\exp\!\left(-\int_{0}^{t} r_s\,ds\right)\,
+\pi_t\,dt \ \Big|\ x_0=x\right],
+\label{eq:FV_inf}
+\end{equation}
+где $x=(r,\bar c,L,K)$ --- начальное состояние.
+
+\section{FV с учётом дефолта и post-default runoff}
+Дефолт определяем как исчерпание капитала:
+\begin{equation}
+\tau := \inf\{t\ge 0:\ K_t \le 0\}.
+\label{eq:tau}
+\end{equation}
+
+После дефолта бизнес не может выдавать новые кредиты, поэтому вводим правило:
+\begin{equation}
+u_t = 0 \quad \text{для всех } t \ge \tau.
+\label{eq:postdefault_u}
+\end{equation}
+Тогда портфель после дефолта только сокращается:
+\[
+dL_t = -\lambda L_t\,dt,\qquad t\ge\tau,
+\]
+а средняя ставка фиксируется:
+\[
+d\bar c_t = 0,\qquad t\ge\tau,
+\]
+поскольку новых выдач нет (см.\ \eqref{eq:cbardyn}).
+
+Справедливая стоимость с дефолтом (и с последующим runoff позиции) задаётся тем же интегралом, но с учётом ограничения \eqref{eq:postdefault_u}:
+\begin{equation}
+\mathrm{FV}^{\mathrm{def}}(x)
+=
+\E^{\Q}\left[\int_{0}^{\infty}
+\exp\!\left(-\int_{0}^{t} r_s\,ds\right)\,
+\pi_t\,dt \ \Big|\ x_0=x,\ u_t=0\ \forall t\ge\tau\right].
+\label{eq:FVdef_inf}
+\end{equation}
+В отличие от ``полной остановки бизнеса'', здесь после дефолта остаются потоки от существующей позиции, пока она закрывается.
+
+\section{Оптимальное управление: постановка, дефолт на горизонте $H$}
+Далее рассматриваем управляемую постановку под реальной мерой $\Pp$ с явным ограничением/штрафом на дефолт на конечном горизонте $H>0$. Управление $u_t$ выбирается адаптивно по состоянию.
+
+\subsection{Класс допустимых управлений}
+Пусть
+\[
+\mathcal{U} := \left\{(u_t)_{t\ge 0}:\ u_t\ \text{прогрессивно измеримо, } 0\le u_t \le u_{\max}\right\},
+\]
+и дополнительно после дефолта действует ограничение $u_t=0$ для $t\ge\tau$.
+
+\subsection{Стационарная value function}
+Рассмотрим стационарную (не зависящую явно от времени) value function с субъективной ставкой дисконтирования $\rho\ge 0$ .
+\begin{equation}
+V(x)
+=
+\sup_{u\in\mathcal{U}}
+\E^{\Pp}\left[
+\int_{0}^{\tau}
+e^{-\rho t}\,\pi_t\,dt
+\;-\;
+\eta\,\1_{\{\tau \le H\}}
+\ \Big|\ x_0=x
+\right].
+\label{eq:value_stationary}
+\end{equation}
+Здесь $\eta\ge 0$ --- штраф за дефолт к горизонту $H$.
+
+\subsection{Пример управления: mean-reversion к целевому уровню капитальной обеспеченности}
+Введём показатель ``капитальная обеспеченность'' (обратное плечо)
+\begin{equation}
+\ell_t := \frac{K_t}{L_t},\qquad (L_t>0),
+\label{eq:ell}
+\end{equation}
+и целевое значение $\ell^\star>0$.
+
+Интуитивная политика: при $\ell_t<\ell^\star$ сокращать выдачи (уменьшать риск), при $\ell_t>\ell^\star$ --- можно наращивать.
+Одна из гладких параметрических форм:
+\begin{equation}
+u_t
+=
+u_{\min} + (u_{\max}-u_{\min})\,
+\sigma\!\left(\alpha(\ell_t-\ell^\star)\right),
+\qquad
+\sigma(x)=(1+e^{-x})^{-1},
+\label{eq:policy_sigmoid}
+\end{equation}
+где $\alpha>0$ задаёт агрессивность обратной связи.
+Эта политика является частным случаем марковского управления $u_t = u(r_t,\bar c_t,L_t,K_t)$.
+
+\section{HJB уравнение (стационарная постановка, до дефолта)}
+Ниже выписывается HJB для стационарной задачи на бесконечном горизонте (для простоты записи), где дефолт учтён как граничное условие по капиталу. Это стандартная форма, удобная для анализа структуры оптимального управления.
+
+Рассмотрим стационарную задачу:
+\begin{equation}
+V(x)
+=
+\sup_{u\in\mathcal{U}}
+\E^{\Pp}\left[
+\int_{0}^{\tau}
+e^{-\rho t}\,\pi_t\,dt
+\ \Big|\ x_0=x
+\right],
+\qquad
+V(r,\bar c,L,0)=0.
+\label{eq:stationary_infinite}
+\end{equation}
+Тогда, при достаточной гладкости $V$, для области $K>0$ выполняется уравнение Беллмана:
+\begin{equation}
+\rho V
+=
+\sup_{u\in[0,u_{\max}]}
+\Big[
+\pi(r,\bar c,L)
++
+\mathcal{L}^{u}V
+\Big],
+\label{eq:HJB}
+\end{equation}
+где $\pi(r,\bar c,L)=L(\bar c-r)$, а генератор $\mathcal{L}^{u}$ имеет вид
+\begin{align}
+\mathcal{L}^{u}V
+&=
+\kappa(\theta^{\Pp}-r)\,V_r
++\frac{1}{2}\sigma^2\,V_{rr}
++\lambda L(u-1)\,V_L
++u\lambda\big(r+s(u)-\bar c\big)\,V_{\bar c}
++L(\bar c-r)\,V_K.
+\label{eq:generator}
+\end{align}
+Граничное условие дефолта:
+\begin{equation}
+V(r,\bar c,L,K)=0\quad \text{при } K\le 0.
+\label{eq:bc_default}
+\end{equation}
+
+Замечание: если требуется именно постановка с конечным горизонтом $H$ и штрафом $\eta\,\1_{\{\tau\le H\}}$, то возникает явная зависимость от времени (терминальные условия при $t=H$). Однако для практического моделирования и численных методов часто используют стационарную аппроксимацию \eqref{eq:HJB} (например, с $\rho>0$), а риск дефолта учитывают отдельными ограничениями/штрафами на горизонте $H$ при оценке политики.
+
+\section{Итого: система уравнений}
+До дефолта ($K_t>0$) управляемая динамика:
+\begin{align}
+dr_t &= \kappa(\theta^{\Pp}-r_t)\,dt + \sigma\,dW_t^{\Pp},\\
+dL_t &= \lambda L_t(u_t-1)\,dt,\\
+d\bar c_t &= u_t\lambda\big(r_t + s(u_t) - \bar c_t\big)\,dt,\\
+dK_t &= L_t(\bar c_t - r_t)\,dt,
+\end{align}
+где $\tau=\inf\{t:K_t\le 0\}$.
+
+После дефолта ($t\ge\tau$) действует ограничение $u_t=0$, поэтому
+\[
+dL_t=-\lambda L_t\,dt,\qquad d\bar c_t=0,\qquad \pi_t=L_t(\bar c_t-r_t).
+\]
+
+\end{document}

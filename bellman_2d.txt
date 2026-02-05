@@ -1,0 +1,178 @@
+import numpy as np
+from scipy.sparse import lil_matrix, csr_matrix, identity
+from scipy.sparse.linalg import spsolve, bicgstab, spilu, LinearOperator
+
+
+def build_system_U(
+    q_grid: np.ndarray,
+    K_grid: np.ndarray,
+    u: np.ndarray,
+    p,
+    R_fun,
+    bc_q: str = "neumann",
+    bc_K_top: str = "dirichlet_v0",
+    V0_fun=None,
+):
+    """
+    Assemble A,b for: (rho I - L^u) U = rho*K
+
+    IMPORTANT: upwind directions are chosen to make L have negative diagonal
+    => (rho I - L) is closer to an M-matrix (helps ILU & convergence).
+    """
+    Nq = len(q_grid)
+    Nk = len(K_grid)
+    dq = q_grid[1] - q_grid[0]
+    dK = K_grid[1] - K_grid[0]
+    Kmax = K_grid[-1]
+
+    rho = p.rho
+    sigma_q = p.sigma_q
+    sigma_p = p.sigma_p
+    nu = p.nu
+    mu_p = p.mu_p
+
+    # penalty depends only on q
+    Rq = R_fun(q_grid, p.q_pen_max, p.eps)  # shape (Nq,)
+
+    def idx(i, j):
+        return i * Nk + j
+
+    N = Nq * Nk
+    A = lil_matrix((N, N), dtype=float)
+    b = np.zeros(N, dtype=float)
+
+    # diffusion coeffs
+    alpha_q = 0.5 * sigma_q**2 / (dq * dq)                      # constant
+    alpha_K = 0.5 * (q_grid**2) * sigma_p**2 / (dK * dK)        # shape (Nq,)
+
+    # K-top boundary
+    if bc_K_top == "dirichlet_v0":
+        if V0_fun is None:
+            raise ValueError("Provide V0_fun(q_grid) for bc_K_top='dirichlet_v0'")
+        U_top = Kmax + V0_fun(q_grid)
+    elif bc_K_top == "dirichlet_linear":
+        U_top = np.full(Nq, Kmax, dtype=float)
+    else:
+        raise ValueError("Unknown bc_K_top")
+
+    for i in range(Nq):
+        qi = q_grid[i]
+        for j in range(Nk):
+            row = idx(i, j)
+            Kj = K_grid[j]
+
+            # Default boundary (Dirichlet): U(q,0)=0
+            if j == 0:
+                A[row, row] = 1.0
+                b[row] = 0.0
+                continue
+
+            # Far-from-default top boundary
+            if j == Nk - 1:
+                A[row, row] = 1.0
+                b[row] = U_top[i]
+                continue
+
+            # Reflecting q boundaries (Neumann): U_q=0
+            if bc_q == "neumann" and i == 0:
+                A[row, idx(0, j)] = 1.0
+                A[row, idx(1, j)] = -1.0
+                b[row] = 0.0
+                continue
+            if bc_q == "neumann" and i == Nq - 1:
+                A[row, idx(Nq - 1, j)] = 1.0
+                A[row, idx(Nq - 2, j)] = -1.0
+                b[row] = 0.0
+                continue
+
+            ui = float(u[i, j])
+
+            # drift of K in generator
+            a = qi * mu_p - 0.5 * nu * ui * ui - float(Rq[i])
+
+            # Start diagonal with rho and RHS with rho*K
+            diag = rho
+            b[row] = rho * Kj
+
+            # ---------- q-advection: L contains + ui * U_q ----------
+            # Choose one-sided so that coefficient on U(i,j) in L is NEGATIVE.
+            if ui > 0:
+                # U_q ≈ (U_{i+1}-U_i)/dq  (forward)
+                # L: +ui/dq * U_{i+1}  + (-ui/dq) * U_i
+                # A = rho I - L: diag += ui/dq, off(i+1) += -ui/dq
+                diag += ui / dq
+                A[row, idx(i + 1, j)] += -ui / dq
+            else:
+                # ui < 0: U_q ≈ (U_i - U_{i-1})/dq (backward)
+                # L: (-ui/dq)*U_{i-1} + (ui/dq)*U_i  (ui/dq negative)
+                # A: diag -= ui/dq, off(i-1) += ui/dq (negative)
+                diag -= ui / dq
+                A[row, idx(i - 1, j)] += ui / dq
+
+            # ---------- K-advection: L contains + a * U_K ----------
+            if a > 0:
+                # U_K ≈ (U_{j+1}-U_j)/dK (forward)
+                diag += a / dK
+                A[row, idx(i, j + 1)] += -a / dK
+            else:
+                # a < 0: U_K ≈ (U_j-U_{j-1})/dK (backward)
+                diag -= a / dK
+                A[row, idx(i, j - 1)] += a / dK
+
+            # ---------- q-diffusion: L contains +alpha_q*(U_{i+1}-2U_i+U_{i-1}) ----------
+            diag += 2.0 * alpha_q
+            A[row, idx(i - 1, j)] += -alpha_q
+            A[row, idx(i + 1, j)] += -alpha_q
+
+            # ---------- K-diffusion ----------
+            aK = float(alpha_K[i])
+            diag += 2.0 * aK
+            A[row, idx(i, j - 1)] += -aK
+            A[row, idx(i, j + 1)] += -aK
+
+            A[row, row] = diag
+
+    return A.tocsr(), b
+
+
+def solve_sparse(A: csr_matrix, b: np.ndarray, method: str = "direct",
+                 ilu_drop=1e-4, ilu_fill=20, ilu_shift=1e-10):
+    """
+    Robust linear solver:
+    - direct: spsolve
+    - bicgstab: ILU preconditioner, with diagonal shift fallback
+    """
+    if method == "direct":
+        return spsolve(A, b)
+
+    if method == "bicgstab":
+        # ILU sometimes fails if pivots are tiny; shift helps.
+        A_csc = A.tocsc()
+        try:
+            ilu = spilu(A_csc, drop_tol=ilu_drop, fill_factor=ilu_fill,
+                        permc_spec="COLAMD", diag_pivot_thresh=0.0)
+        except RuntimeError:
+            # add tiny diagonal regularization
+            A_shift = (A + ilu_shift * identity(A.shape[0], format="csr")).tocsc()
+            ilu = spilu(A_shift, drop_tol=ilu_drop, fill_factor=ilu_fill,
+                        permc_spec="COLAMD", diag_pivot_thresh=0.0)
+
+        M = LinearOperator(A.shape, ilu.solve)
+        x, info = bicgstab(A, b, M=M, tol=1e-10, maxiter=4000)
+        if info != 0:
+            raise RuntimeError(f"bicgstab did not converge, info={info}")
+        return x
+
+    raise ValueError("Unknown solver method")
+
+
+def V0_fun(q):
+    # твой V0 без дефолта/штрафов (или любая разумная сшивка)
+    A = p.mu_p / p.rho
+    C = p.mu_p**2 / (2*p.nu*p.rho**3)
+    return A*q + C
+
+
+A, b = build_system_U(q_grid, K_grid, u, p=params, R_fun=R_fun,
+                      bc_q=bc_q, bc_K_top=bc_K_top, V0_fun=V0_fun)
+U_flat = solve_sparse(A, b, method=solver)   # solver="bicgstab" или "direct"
