@@ -367,6 +367,26 @@ def get_optimal_policy_capital(horizont):
     return capital, optimal_policy
 
 
+def get_optimal_policy_capital_short(horizont):
+    horizont = horizon_to_steps(horizont)
+    nt = horizon_to_steps
+    optimal_policy = np.zeros((nt + 1, ) + R_MESH.shape)
+    capital = np.zeros((nt + 1, ) + R_MESH.shape)
+
+    for t in tqdm(range(nt)[::-1]):
+        n_actions = len(P.u_actions) 
+        q_funtion = np.zeros((n_actions, ) + R_MESH.shape)
+        # interating over policies
+        for i, u in enumerate(P.u_actions):    
+            action = ACTION_CACHE[u]
+            cv = diffuse_cached(capital[t + 1], action["stencils"])
+            q_funtion[i] = action["dK"] + cv
+        idx = np.argmax(q_funtion, axis=0)
+        optimal_policy[t] = np.asarray(P.u_actions)[idx]
+        capital[t] = np.take_along_axis(q_funtion, idx[None, ...], axis=0)[0]
+    return capital, optimal_policy
+
+
 def get_capital(policy, horizont):
     horizont = horizon_to_steps(horizont)
     nt = P.N
