@@ -7,7 +7,7 @@ import numpy as np
 from numpy.polynomial.hermite import hermgauss
 from tqdm.auto import tqdm
 
-from src import interpolation
+from src.swap_trader import interpolation
 
 
 @dataclass(frozen=True)
