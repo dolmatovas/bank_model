@@ -1,0 +1,18 @@
+\begin{tabular}{lll}
+\toprule
+Параметр & Значение & Комментарий \\
+\midrule
+$\Delta t$ & 0.25y & Quarterly control / coupon step \\
+$T$ & 7y & Swap maturity \\
+$a$ & 0.35 & Hull-White mean reversion \\
+$\bar r$ & 2.50\% & Long-run short rate and initial flat curve level \\
+$\sigma$ & 1.20\% & Baseline short-rate volatility \\
+$K_{fix}$ & 2.508\% & Par fixed coupon at $t=0$ \\
+$q_0$ & 100 & Initial swap notional \\
+$K_0$ & 14.0 & Initial capital \\
+$CAR$ & 10\% & Risk-appetite floor $K_t/q_t$ \\
+$\varepsilon$ & 0.25 & Breach penalty $1/\varepsilon=4$ per year \\
+$\lambda$ & 0.0020 & Liquidity cost coefficient \\
+$u_t$ & $\{-40,-20,0,20,40\}$ & Optimal-control action set (notional units/year) \\
+\bottomrule
+\end{tabular}

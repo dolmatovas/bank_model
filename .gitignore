@@ -3,6 +3,8 @@ __pycache__/
 *.py[codz]
 *$py.class
 
+.vscode/
+
 # C extensions
 *.so
 
@@ -204,6 +206,10 @@ cython_debug/
 # Ruff stuff:
 .ruff_cache/
 
+# LaTeX auxiliary files
+*.aux
+*.out
+
 # PyPI configuration file
 .pypirc
 
@@ -214,6 +220,3 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
-
-aux_dir/
-.vscode

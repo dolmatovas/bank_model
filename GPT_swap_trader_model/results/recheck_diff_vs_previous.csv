@@ -1,0 +1,14 @@
+Dataset,Field,Max abs diff
+summary,Final K,0.0
+summary,Cum coupon,0.0
+summary,Penalty,0.0
+summary,Liq cost,0.0
+summary,Time in breach,0.0
+summary,Avg q,0.0
+summary,Final q,0.0
+summary,Min CAR,0.0
+summary,Max |MtM|,0.0
+delta,mean_abs_delta,0.0
+delta,mean_abs_norm_delta,0.0
+delta,start_delta,0.0
+delta,end_delta,0.0

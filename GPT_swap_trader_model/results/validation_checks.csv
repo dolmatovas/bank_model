@@ -1,0 +1,8 @@
+Check,Max abs error,Mean abs error,Tolerance,Pass
+swap delta finite-difference,6.4180554204540385e-09,2.369950303905534e-09,1e-06,1
+capital path recursion,1.0658141036401503e-14,3.819167204710538e-15,1e-10,1
+dK decomposition,7.105427357601002e-15,7.127631818093505e-16,1e-10,1
+summary CSV consistency,0.0,0.0,1e-12,1
+Bellman residual on sampled states,3.552713678800501e-15,9.592326932761352e-17,1e-08,1
+Optimal action matches stored policy,0.0,0.0,0.0,1
+MtM start delta formula,0.0,0.0,1e-12,1

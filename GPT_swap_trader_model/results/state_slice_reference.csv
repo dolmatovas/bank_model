@@ -1,0 +1,4 @@
+TimeYears,TimeLabel,RefScenario,RefPolicy,Ref_r,Ref_q,Ref_K
+0.0,t=0y,Base MR,Optimal V,0.025,100.0,14.0
+1.0,t=1y,Base MR,Optimal V,0.024767804393236083,100.0,14.361611482457816
+3.0,t=3y,Base MR,Optimal V,0.03480302444314735,100.0,15.410078838027493
