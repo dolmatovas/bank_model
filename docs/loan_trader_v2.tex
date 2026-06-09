@@ -1,0 +1,314 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T2A]{fontenc}
+\usepackage[russian,english]{babel}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{geometry}
+\usepackage{booktabs}
+\usepackage{enumitem}
+\usepackage{hyperref}
+
+\geometry{margin=2.5cm}
+
+\title{Toy-модель оптимального управления банком с процентным риском и капиталом}
+\author{}
+\date{}
+
+\newcommand{\1}{\mathbf{1}}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\pos}[1]{\left[#1\right]^+}
+
+\begin{document}
+\selectlanguage{russian}
+\maketitle
+
+\section{Идея модели}
+
+Рассматривается минимальная toy-модель банка, в которой есть только процентный риск и капитал. Ликвидностный риск, кредитный риск, досрочные погашения, рыночная переоценка, налоги и операционные расходы отсутствуют.
+
+Банк имеет fixed-rate кредитный портфель и фондирует его floating-rate депозитами. Кредиты и депозиты считаются равными по объёму:
+\begin{equation}
+    A_t = D_t.
+\end{equation}
+
+Капитал интерпретируется как cash/reserve buffer:
+\begin{equation}
+    C_t = K_t.
+\end{equation}
+
+Баланс имеет вид:
+\begin{equation}
+    A_t + C_t = D_t + K_t.
+\end{equation}
+
+При $A_t=D_t$ и $C_t=K_t$ баланс выполняется автоматически. Экономически это означает, что кредиты полностью фондируются депозитами, а капитал лежит отдельно и покрывает неблагоприятные реализации процентного риска.
+
+\section{Состояние, управление и шоки}
+
+Состояние в момент $t$:
+\begin{equation}
+    S_t = (A_t, K_t, c_t, r_t),
+\end{equation}
+где:
+\begin{itemize}[noitemsep]
+    \item $A_t$ --- объём кредитного портфеля;
+    \item $K_t$ --- капитал / cash buffer;
+    \item $c_t$ --- средний фиксированный купон старого кредитного портфеля;
+    \item $r_t$ --- short rate.
+\end{itemize}
+
+Управление:
+\begin{equation}
+    a_t = (g_t, p_t),
+\end{equation}
+где:
+\begin{itemize}[noitemsep]
+    \item $g_t$ --- скорость новой выдачи кредитов как доля текущего портфеля;
+    \item $p_t \in [0,1]$ --- желаемый payout ratio от положительной прибыли.
+\end{itemize}
+
+Ставка $r_t$ развивается стохастически. Например, можно использовать AR(1)-процесс:
+\begin{equation}
+    r_{t+1} = \mu + \rho(r_t-\mu) + \sigma \varepsilon_{t+1},
+    \qquad \varepsilon_{t+1}\sim\mathcal{N}(0,1).
+\end{equation}
+
+При необходимости можно добавить floor:
+\begin{equation}
+    r_{t+1} = \max\left(r_{\min},\, \mu + \rho(r_t-\mu)+\sigma\varepsilon_{t+1}\right).
+\end{equation}
+
+\section{Кредитный портфель}
+
+Пусть $\alpha$ --- месячная амортизация старого портфеля. Тогда новая динамика баланса:
+\begin{equation}
+    A_{t+1} = A_t(1-\alpha+g_t).
+\end{equation}
+
+Если $g_t=\alpha$, то банк поддерживает constant balance. Если $g_t>\alpha$, баланс растёт. Если $g_t<\alpha$, баланс сокращается.
+
+\subsection{Ставка новой выдачи}
+
+Депозиты стоят ровно short rate:
+\begin{equation}
+    R_t^D = r_t.
+\end{equation}
+
+Новые кредиты выдаются под ставку:
+\begin{equation}
+    R_t^{new} = r_t + s(g_t),
+\end{equation}
+где спред линейно зависит от скорости выдачи:
+\begin{equation}
+    s(g_t) = s_0 - \kappa(g_t-\alpha), \qquad \kappa>0.
+\end{equation}
+
+При normal rolling, $g_t=\alpha$, спред равен нормальному коммерческому уровню:
+\begin{equation}
+    s(\alpha)=s_0.
+\end{equation}
+
+Если банк растёт быстрее rolling balance, $g_t>\alpha$, то спред ниже $s_0$: банк вынужден делать менее маржинальные сделки. Если банк растёт медленнее, $g_t<\alpha$, то спред выше $s_0$: банк выбирает только более маржинальные сделки.
+
+При желании можно добавить floor:
+\begin{equation}
+    s(g_t)=\max\{s_{\min},\,s_0-\kappa(g_t-\alpha)\}.
+\end{equation}
+
+\subsection{Средний купон портфеля}
+
+Средний фиксированный купон кредитного портфеля обновляется как взвешенное среднее старого surviving book и новой выдачи:
+\begin{equation}
+    c_{t+1}
+    =
+    \frac{(1-\alpha)c_t + g_t\left[r_t+s_0-\kappa(g_t-\alpha)\right]}
+    {1-\alpha+g_t}.
+\end{equation}
+
+Эквивалентно:
+\begin{equation}
+    c_{t+1}
+    =
+    \frac{(1-\alpha)A_tc_t + g_tA_t R_t^{new}}
+    {A_t(1-\alpha+g_t)}.
+\end{equation}
+
+\section{Процентный доход и капитал}
+
+Так как $D_t=A_t$, стоимость депозитов равна $r_tA_t$. Капитал лежит в cash и зарабатывает $r_tK_t$. Чистый процентный доход:
+\begin{equation}
+    \Pi_t = NII_t = A_t(c_t-r_t)+r_tK_t.
+\end{equation}
+
+Преддивидендный капитал:
+\begin{equation}
+    K_t^{pre}=K_t+\Pi_t.
+\end{equation}
+
+В данной toy-модели весь P\&L проходит через капитал. Если $\Pi_t<0$, то капитал уменьшается. Это и есть механизм покрытия процентных потерь.
+
+\section{Капитальные пороги, дивиденды и дефолт}
+
+Capital ratio:
+\begin{equation}
+    CAR_t = \frac{K_t}{A_t}.
+\end{equation}
+
+Вводятся два уровня капитала:
+\begin{equation}
+    c_0 < c^*,
+\end{equation}
+где:
+\begin{itemize}[noitemsep]
+    \item $c^*$ --- dividend / management capital threshold;
+    \item $c_0$ --- regulatory default / resolution threshold.
+\end{itemize}
+
+\subsection{Default rule}
+
+Проверка дефолта делается после прибыли текущего периода и с учётом нового размера баланса:
+\begin{equation}
+    \frac{K_t^{pre}}{A_{t+1}} < c_0
+    \quad\Rightarrow\quad
+    \text{default/resolution at time } t.
+\end{equation}
+
+Если происходит дефолт, игра заканчивается. Акционер получает discounted residual capital:
+\begin{equation}
+    Rec_t = (1-\delta)\pos{K_t^{pre}},
+\end{equation}
+где $\delta\in[0,1]$ --- haircut/dislocation discount в resolution.
+
+\subsection{Dividend rule}
+
+Если дефолта нет, дивиденды выплачиваются только из положительной прибыли и только сверх целевого capital threshold. Дивиденд не может опустить банк ниже $c^*$ относительно нового баланса $A_{t+1}$:
+\begin{equation}
+    Div_t
+    =
+    \min\left(
+        p_t\pos{\Pi_t},
+        \pos{K_t^{pre}-c^*A_{t+1}}
+    \right).
+\end{equation}
+
+Если $K_t^{pre}/A_{t+1}<c^*$, то второй аргумент равен нулю, и дивиденды запрещены:
+\begin{equation}
+    Div_t=0.
+\end{equation}
+
+Капитал после выплаты дивидендов:
+\begin{equation}
+    K_{t+1}=K_t^{pre}-Div_t.
+\end{equation}
+
+\section{Payoff акционера}
+
+Пусть $\tau$ --- момент дефолта:
+\begin{equation}
+    \tau = \inf\left\{t: \frac{K_t^{pre}}{A_{t+1}}<c_0\right\}.
+\end{equation}
+
+Если банк доживает до горизонта $T$, terminal value задаётся как:
+\begin{equation}
+    TV_T = K_T + \theta A_T,
+\end{equation}
+где $\theta A_T$ --- упрощённая franchise value кредитного портфеля.
+
+Целевая функция:
+\begin{equation}
+\boxed{
+    \max_{\pi}
+    \E\left[
+        \sum_{t<\tau,\,t\le T} \gamma^t Div_t
+        +
+        \1_{\tau\le T}\gamma^\tau (1-\delta)\pos{K_\tau^{pre}}
+        +
+        \1_{\tau>T}\gamma^T(K_T+\theta A_T)
+    \right]
+}
+\end{equation}
+где политика
+\begin{equation}
+    \pi: (A_t,K_t,c_t,r_t)\mapsto (g_t,p_t).
+\end{equation}
+
+\section{Полная рекурсия модели}
+
+Для каждого периода $t$:
+
+\begin{enumerate}[label=\arabic*.]
+    \item Наблюдается состояние $S_t=(A_t,K_t,c_t,r_t)$.
+    \item Выбирается управление $a_t=(g_t,p_t)$.
+    \item Считается новый размер баланса:
+    \begin{equation}
+        A_{t+1}=A_t(1-\alpha+g_t).
+    \end{equation}
+    \item Считается прибыль текущего периода:
+    \begin{equation}
+        \Pi_t=A_t(c_t-r_t)+r_tK_t.
+    \end{equation}
+    \item Считается преддивидендный капитал:
+    \begin{equation}
+        K_t^{pre}=K_t+\Pi_t.
+    \end{equation}
+    \item Если
+    \begin{equation}
+        K_t^{pre}/A_{t+1}<c_0,
+    \end{equation}
+    то происходит дефолт, акционер получает
+    \begin{equation}
+        (1-\delta)\pos{K_t^{pre}},
+    \end{equation}
+    и процесс останавливается.
+    \item Иначе дивиденды равны:
+    \begin{equation}
+        Div_t=\min\left(p_t\pos{\Pi_t},\pos{K_t^{pre}-c^*A_{t+1}}\right).
+    \end{equation}
+    \item Капитал обновляется:
+    \begin{equation}
+        K_{t+1}=K_t^{pre}-Div_t.
+    \end{equation}
+    \item Средний купон обновляется:
+    \begin{equation}
+        c_{t+1}
+        =
+        \frac{(1-\alpha)c_t + g_t\left[r_t+s_0-\kappa(g_t-\alpha)\right]}
+        {1-\alpha+g_t}.
+    \end{equation}
+    \item Ставка обновляется:
+    \begin{equation}
+        r_{t+1}=\mu+\rho(r_t-\mu)+\sigma\varepsilon_{t+1}.
+    \end{equation}
+\end{enumerate}
+
+\section{Экономическая интерпретация}
+
+Модель содержит базовый trade-off:
+\begin{itemize}
+    \item быстрый рост $g_t$ увеличивает будущий портфель $A_{t+1}$;
+    \item быстрый рост снижает спред новой выдачи $s(g_t)$;
+    \item рост баланса увеличивает знаменатель $CAR=K/A$;
+    \item fixed-rate активы имеют медленный купон $c_t$, а депозитная стоимость равна текущему short rate $r_t$;
+    \item рост ставок снижает $NII_t=A_t(c_t-r_t)+r_tK_t$ и может проедать капитал;
+    \item если capital ratio ниже $c^*$, дивиденды прекращаются;
+    \item если capital ratio ниже $c_0$, банк попадает в default/resolution, и акционер получает recovery с дисконтом.
+\end{itemize}
+
+\section{Возможные расширения}
+
+Натуральные расширения модели:
+\begin{enumerate}[noitemsep]
+    \item добавить ограничение или cost на отрицательный/слишком малый $g_t$;
+    \item добавить convexity/floor в функцию $s(g_t)$;
+    \item заменить один fixed coupon $c_t$ на maturity ladder или 2D-gap;
+    \item добавить налоги и операционные расходы;
+    \item добавить credit losses;
+    \item добавить ликвидность и оттоки депозитов;
+    \item добавить докапитализацию вместо immediate default;
+    \item добавить stochastic deposit beta вместо $R_t^D=r_t$;
+    \item добавить risk-sensitive objective, например CVaR terminal shareholder loss.
+\end{enumerate}
+
+\end{document}
