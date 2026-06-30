@@ -49,13 +49,13 @@
 
 Состояние в момент $t$:
 \begin{equation}
-    S_t = (A_t, K_t, c_t, r_t),
+    S_t = (A_t, K_t, \overline{R}_t, r_t),
 \end{equation}
 где:
 \begin{itemize}[noitemsep]
     \item $A_t$ --- объём кредитного портфеля;
     \item $K_t$ --- капитал / cash buffer;
-    \item $c_t$ --- средний фиксированный купон старого кредитного портфеля;
+    \item $\overline{R}_t$ --- средняя фиксированная ставка старого кредитного портфеля;
     \item $r_t$ --- short rate.
 \end{itemize}
 
@@ -98,7 +98,7 @@
 
 Новые кредиты выдаются под ставку:
 \begin{equation}
-    R_t^{new} = r_t + s(g_t),
+    R_t = r_t + s(g_t),
 \end{equation}
 где спред линейно зависит от скорости выдачи:
 \begin{equation}
@@ -117,21 +117,21 @@
     s(g_t)=\max\{s_{\min},\,s_0-\kappa(g_t-\alpha)\}.
 \end{equation}
 
-\subsection{Средний купон портфеля}
+\subsection{Средняя ставка портфеля}
 
-Средний фиксированный купон кредитного портфеля обновляется как взвешенное среднее старого surviving book и новой выдачи:
+Средняя фиксированная ставка кредитного портфеля обновляется как взвешенное среднее старого surviving book и новой выдачи:
 \begin{equation}
-    c_{t+1}
+    \overline{R}_{t+1}
     =
-    \frac{(1-\alpha)c_t + g_t\left[r_t+s_0-\kappa(g_t-\alpha)\right]}
+    \frac{(1-\alpha)\overline{R}_t + g_t\left[r_t+s_0-\kappa(g_t-\alpha)\right]}
     {1-\alpha+g_t}.
 \end{equation}
 
 Эквивалентно:
 \begin{equation}
-    c_{t+1}
+    \overline{R}_{t+1}
     =
-    \frac{(1-\alpha)A_tc_t + g_tA_t R_t^{new}}
+    \frac{(1-\alpha)A_t\overline{R}_t + g_tA_t R_t}
     {A_t(1-\alpha+g_t)}.
 \end{equation}
 
@@ -139,7 +139,7 @@
 
 Так как $D_t=A_t$, стоимость депозитов равна $r_tA_t$. Капитал лежит в cash и зарабатывает $r_tK_t$. Чистый процентный доход:
 \begin{equation}
-    \Pi_t = NII_t = A_t(c_t-r_t)+r_tK_t.
+    \Pi_t = NII_t = A_t(\overline{R}_t-r_t)+r_tK_t.
 \end{equation}
 
 Преддивидендный капитал:
@@ -151,9 +151,9 @@
 
 \section{Капитальные пороги, дивиденды и дефолт}
 
-Capital ratio:
+Capital ratio (capital adequacy ratio) обозначается как:
 \begin{equation}
-    CAR_t = \frac{K_t}{A_t}.
+    c_t = CAR_t = \frac{K_t}{A_t}.
 \end{equation}
 
 Вводятся два уровня капитала:
@@ -231,7 +231,7 @@ Capital ratio:
 \end{equation}
 где политика
 \begin{equation}
-    \pi: (A_t,K_t,c_t,r_t)\mapsto (g_t,p_t).
+    \pi: (A_t,K_t,\overline{R}_t,r_t)\mapsto (g_t,p_t).
 \end{equation}
 
 \section{Полная рекурсия модели}
@@ -239,7 +239,7 @@ Capital ratio:
 Для каждого периода $t$:
 
 \begin{enumerate}[label=\arabic*.]
-    \item Наблюдается состояние $S_t=(A_t,K_t,c_t,r_t)$.
+    \item Наблюдается состояние $S_t=(A_t,K_t,\overline{R}_t,r_t)$.
     \item Выбирается управление $a_t=(g_t,p_t)$.
     \item Считается новый размер баланса:
     \begin{equation}
@@ -247,7 +247,7 @@ Capital ratio:
     \end{equation}
     \item Считается прибыль текущего периода:
     \begin{equation}
-        \Pi_t=A_t(c_t-r_t)+r_tK_t.
+        \Pi_t=A_t(\overline{R}_t-r_t)+r_tK_t.
     \end{equation}
     \item Считается преддивидендный капитал:
     \begin{equation}
@@ -272,9 +272,9 @@ Capital ratio:
     \end{equation}
     \item Средний купон обновляется:
     \begin{equation}
-        c_{t+1}
+        \overline{R}_{t+1}
         =
-        \frac{(1-\alpha)c_t + g_t\left[r_t+s_0-\kappa(g_t-\alpha)\right]}
+        \frac{(1-\alpha)\overline{R}_t + g_t\left[r_t+s_0-\kappa(g_t-\alpha)\right]}
         {1-\alpha+g_t}.
     \end{equation}
     \item Ставка обновляется:
@@ -289,16 +289,16 @@ Capital ratio:
 
 В исходной постановке состояние имеет размерность четыре:
 \begin{equation}
-    S_t=(A_t,K_t,c_t,r_t).
+    S_t=(A_t,K_t,\overline{R}_t,r_t).
 \end{equation}
 
 Однако модель обладает однородностью по масштабу баланса. Все денежные величины --- прибыль, дивиденды, капитал, recovery и terminal value --- линейно масштабируются с $A_t$. Поэтому можно ввести относительный капитал:
 \begin{equation}
-    k_t=\frac{K_t}{A_t},
+    c_t=\frac{K_t}{A_t},
 \end{equation}
 и переписать задачу в нормированных переменных. Тогда состояние становится трёхмерным:
 \begin{equation}
-    \widetilde S_t=(k_t,c_t,r_t).
+    \widetilde S_t=(c_t,\overline{R}_t,r_t).
 \end{equation}
 
 \subsection{Нормированные переменные}
@@ -314,20 +314,20 @@ Capital ratio:
 
 Прибыль текущего периода равна:
 \begin{equation}
-    \Pi_t=A_t(c_t-r_t)+r_tK_t.
+    \Pi_t=A_t(\overline{R}_t-r_t)+r_tK_t.
 \end{equation}
-Подставляя $K_t=k_tA_t$, получаем:
+Подставляя $K_t=c_tA_t$, получаем:
 \begin{equation}
-    \Pi_t=A_t\left(c_t-r_t+r_tk_t\right).
+    \Pi_t=A_t\left(\overline{R}_t-r_t+r_tc_t\right).
 \end{equation}
 Введём прибыль на единицу активов:
 \begin{equation}
-    \pi_t=\frac{\Pi_t}{A_t}=c_t-r_t+r_tk_t.
+    \pi_t=\frac{\Pi_t}{A_t}=\overline{R}_t-r_t+r_tc_t.
 \end{equation}
 
 Преддивидендный капитал в относительных величинах:
 \begin{equation}
-    \frac{K_t^{pre}}{A_t}=k_t+\pi_t.
+    \frac{K_t^{pre}}{A_t}=c_t+\pi_t.
 \end{equation}
 
 \subsection{Default rule в нормированной форме}
@@ -336,10 +336,10 @@ Capital ratio:
 \begin{equation}
     \frac{K_t^{pre}}{A_{t+1}}<c_0.
 \end{equation}
-Так как $A_{t+1}=A_tm_t$ и $K_t^{pre}=A_t(k_t+\pi_t)$, условие дефолта принимает вид:
+Так как $A_{t+1}=A_tm_t$ и $K_t^{pre}=A_t(c_t+\pi_t)$, условие дефолта принимает вид:
 \begin{equation}
     \boxed{
-    \frac{k_t+\pi_t}{m_t}<c_0.
+    \frac{c_t+\pi_t}{m_t}<c_0.
     }
 \end{equation}
 
@@ -350,7 +350,7 @@ Capital ratio:
 Нормированный recovery на единицу активов:
 \begin{equation}
     \boxed{
-    rec_t=(1-\delta)\pos{k_t+\pi_t}.
+    rec_t=(1-\delta)\pos{c_t+\pi_t}.
     }
 \end{equation}
 
@@ -366,7 +366,7 @@ Capital ratio:
     =
     \min\left(
         p_t\pos{\pi_t},
-        \pos{k_t+\pi_t-c^*m_t}
+        \pos{c_t+\pi_t-c^*m_t}
     \right).
 \end{equation}
 Введём нормированный дивиденд:
@@ -376,12 +376,12 @@ Capital ratio:
     =
     \min\left(
         p_t\pos{\pi_t},
-        \pos{k_t+\pi_t-c^*m_t}
+        \pos{c_t+\pi_t-c^*m_t}
     \right).
     }
 \end{equation}
 
-Если $k_t+\pi_t<c^*m_t$, то $d_t=0$. Это ровно означает, что после прибыли текущего периода банк не имеет dividend capacity относительно нового размера баланса.
+Если $c_t+\pi_t<c^*m_t$, то $d_t=0$. Это ровно означает, что после прибыли текущего периода банк не имеет dividend capacity относительно нового размера баланса.
 
 \subsection{Динамика относительного капитала}
 
@@ -391,27 +391,27 @@ Capital ratio:
 \end{equation}
 Делим на $A_{t+1}=A_tm_t$:
 \begin{equation}
-    k_{t+1}
+    c_{t+1}
     =
     \frac{K_{t+1}}{A_{t+1}}
     =
-    \frac{A_tk_t+A_t\pi_t-A_td_t}{A_tm_t}.
+    \frac{A_tc_t+A_t\pi_t-A_td_t}{A_tm_t}.
 \end{equation}
 Следовательно:
 \begin{equation}
     \boxed{
-    k_{t+1}=\frac{k_t+\pi_t-d_t}{m_t}.
+    c_{t+1}=\frac{c_t+\pi_t-d_t}{m_t}.
     }
 \end{equation}
 
-\subsection{Динамика купона и ставки}
+\subsection{Динамика средней ставки портфеля и short rate}
 
-Средний купон не зависит от масштаба $A_t$:
+Средняя ставка кредитного портфеля не зависит от масштаба $A_t$:
 \begin{equation}
     \boxed{
-    c_{t+1}
+    \overline{R}_{t+1}
     =
-    \frac{(1-\alpha)c_t+g_t\left[r_t+s_0-\kappa(g_t-\alpha)\right]}{m_t}.
+    \frac{(1-\alpha)\overline{R}_t+g_t\left[r_t+s_0-\kappa(g_t-\alpha)\right]}{m_t}.
     }
 \end{equation}
 
@@ -427,31 +427,31 @@ Capital ratio:
 Для фиксированного управления $(g_t,p_t)$ нормированная динамика имеет вид:
 \begin{align}
     m_t &= 1-\alpha+g_t,\\
-    \pi_t &= c_t-r_t+r_tk_t,\\
-    d_t &= \min\left(p_t\pos{\pi_t},\pos{k_t+\pi_t-c^*m_t}\right),\\
-    k_{t+1} &= \frac{k_t+\pi_t-d_t}{m_t},\\
-    c_{t+1} &= \frac{(1-\alpha)c_t+g_t\left[r_t+s_0-\kappa(g_t-\alpha)\right]}{m_t},\\
+    \pi_t &= \overline{R}_t-r_t+r_tc_t,\\
+    d_t &= \min\left(p_t\pos{\pi_t},\pos{c_t+\pi_t-c^*m_t}\right),\\
+    c_{t+1} &= \frac{c_t+\pi_t-d_t}{m_t},\\
+    \overline{R}_{t+1} &= \frac{(1-\alpha)\overline{R}_t+g_t\left[r_t+s_0-\kappa(g_t-\alpha)\right]}{m_t},\\
     r_{t+1} &= \mu+\rho(r_t-\mu)+\sigma\varepsilon_{t+1}.
 \end{align}
 
 Default indicator:
 \begin{equation}
     \mathcal{D}_t=
-    \1\left\{\frac{k_t+\pi_t}{m_t}<c_0\right\}.
+    \1\left\{\frac{c_t+\pi_t}{m_t}<c_0\right\}.
 \end{equation}
 
-Таким образом, вместо состояния $(A_t,K_t,c_t,r_t)$ можно использовать $(k_t,c_t,r_t)$.
+Таким образом, вместо состояния $(A_t,K_t,\overline{R}_t,r_t)$ можно использовать $(c_t,\overline{R}_t,r_t)$.
 
 \section{Нормированное уравнение Беллмана}
 
-Пусть $V_t(A,K,c,r)$ --- value function акционера в абсолютных денежных единицах. Из-за однородности модели по $A$ можно искать её в виде:
+Пусть $V_t(A,K,\overline{R},r)$ --- value function акционера в абсолютных денежных единицах. Из-за однородности модели по $A$ можно искать её в виде:
 \begin{equation}
     \boxed{
-    V_t(A,K,c,r)=A\,v_t(k,c,r),
-    \qquad k=\frac{K}{A}.
+    V_t(A,K,\overline{R},r)=A\,v_t(c,\overline{R},r),
+    \qquad c=\frac{K}{A}.
     }
 \end{equation}
-Здесь $v_t(k,c,r)$ --- стоимость банка на единицу кредитного портфеля.
+Здесь $v_t(c,\overline{R},r)$ --- стоимость банка на единицу кредитного портфеля.
 
 \subsection{Terminal condition}
 
@@ -462,52 +462,52 @@ Default indicator:
 Поэтому нормированное терминальное условие:
 \begin{equation}
     \boxed{
-    v_T(k,c,r)=k+\theta.
+    v_T(c,\overline{R},r)=c+\theta.
     }
 \end{equation}
 
 \subsection{Bellman equation}
 
-Для состояния $(k,c,r)$ и управления $(g,p)$ определим:
+Для состояния $(c,\overline{R},r)$ и управления $(g,p)$ определим:
 \begin{align}
     m &= 1-\alpha+g,\\
-    \pi &= c-r+rk,\\
-    R^{new} &= r+s_0-\kappa(g-\alpha),\\
-    c' &= \frac{(1-\alpha)c+gR^{new}}{m},\\
-    d &= \min\left(p\pos{\pi},\pos{k+\pi-c^*m}\right),\\
-    k' &= \frac{k+\pi-d}{m},\\
+    \pi &= \overline{R}-r+rc,\\
+    R &= r+s_0-\kappa(g-\alpha),\\
+    \overline{R}' &= \frac{(1-\alpha)\overline{R}+gR}{m},\\
+    d &= \min\left(p\pos{\pi},\pos{c+\pi-c^*m}\right),\\
+    c' &= \frac{c+\pi-d}{m},\\
     r' &= \mu+\rho(r-\mu)+\sigma\varepsilon'.
 \end{align}
 
 Если:
 \begin{equation}
-    \frac{k+\pi}{m}<c_0,
+    \frac{c+\pi}{m}<c_0,
 \end{equation}
 то наступает default/resolution, и нормированный payoff равен:
 \begin{equation}
-    (1-\delta)\pos{k+\pi}.
+    (1-\delta)\pos{c+\pi}.
 \end{equation}
 
 Если дефолта нет, Bellman continuation value в абсолютных единицах:
 \begin{equation}
-    Div_t+\gamma\E_t[V_{t+1}(A_{t+1},K_{t+1},c_{t+1},r_{t+1})].
+    Div_t+\gamma\E_t[V_{t+1}(A_{t+1},K_{t+1},\overline{R}_{t+1},r_{t+1})].
 \end{equation}
 Так как $Div_t=Ad$, $A_{t+1}=Am$ и $V_{t+1}=A_{t+1}v_{t+1}$, после деления на $A$ получаем множитель $m$ перед continuation value:
 \begin{equation}
-    d+\gamma m\E\left[v_{t+1}(k',c',r')\right].
+    d+\gamma m\E\left[v_{t+1}(c',\overline{R}',r')\right].
 \end{equation}
 
 Итоговое нормированное уравнение Беллмана:
 \begin{equation}
 \boxed{
-    v_t(k,c,r)
+    v_t(c,\overline{R},r)
     =
     \max_{g\in\mathcal{G},\,p\in\mathcal{P}}
     \begin{cases}
-        (1-\delta)\pos{k+\pi},
-        & \dfrac{k+\pi}{m}<c_0,\\[8pt]
-        d+\gamma m\E\left[v_{t+1}(k',c',r')\right],
-        & \dfrac{k+\pi}{m}\ge c_0.
+        (1-\delta)\pos{c+\pi},
+        & \dfrac{c+\pi}{m}<c_0,\\[8pt]
+        d+\gamma m\E\left[v_{t+1}(c',\overline{R}',r')\right],
+        & \dfrac{c+\pi}{m}\ge c_0.
     \end{cases}
 }
 \end{equation}
@@ -516,14 +516,14 @@ Default indicator:
 \begin{equation}
 \boxed{
 \begin{aligned}
-    v_t(k,c,r)
+    v_t(c,\overline{R},r)
     =
     \max_{g,p}\Bigg\{&
-    \1\left\{\frac{k+\pi}{m}<c_0\right\}(1-\delta)\pos{k+\pi}
+    \1\left\{\frac{c+\pi}{m}<c_0\right\}(1-\delta)\pos{c+\pi}
     \\
     &+
-    \1\left\{\frac{k+\pi}{m}\ge c_0\right\}
-    \left(d+\gamma m\E\left[v_{t+1}(k',c',r')\right]\right)
+    \1\left\{\frac{c+\pi}{m}\ge c_0\right\}
+    \left(d+\gamma m\E\left[v_{t+1}(c',\overline{R}',r')\right]\right)
     \Bigg\}.
 \end{aligned}
 }
@@ -533,15 +533,15 @@ Default indicator:
 
 Редукция показывает, что абсолютный размер кредитного портфеля $A_t$ сам по себе не нужен для выбора оптимальной политики, если все доходы, потери и выплаты масштабируются линейно с $A_t$. Важны только:
 \begin{itemize}[noitemsep]
-    \item относительный капитал $k_t=K_t/A_t$;
-    \item средний купон старого fixed-rate портфеля $c_t$;
+    \item относительный капитал $c_t=K_t/A_t$;
+    \item средняя ставка старого fixed-rate портфеля $\overline{R}_t$;
     \item текущая short rate $r_t$.
 \end{itemize}
 
 Рост $g_t$ влияет на задачу тремя каналами:
 \begin{enumerate}[noitemsep]
     \item увеличивает будущий масштаб через множитель $m_t=1-\alpha+g_t$;
-    \item размывает капитал, так как $k_{t+1}=(k_t+\pi_t-d_t)/m_t$;
+    \item размывает капитал, так как $c_{t+1}=(c_t+\pi_t-d_t)/m_t$;
     \item снижает спред новой выдачи через $s(g_t)=s_0-\kappa(g_t-\alpha)$.
 \end{enumerate}
 
@@ -549,7 +549,7 @@ Default indicator:
 
 \subsection{Когда однородность ломается}
 
-Редукция $S_t=(A_t,K_t,c_t,r_t)\mapsto(k_t,c_t,r_t)$ корректна, пока модель линейно масштабируется с $A_t$. Она перестанет быть точной, если добавить:
+Редукция $S_t=(A_t,K_t,\overline{R}_t,r_t)\mapsto(c_t,\overline{R}_t,r_t)$ корректна, пока модель линейно масштабируется с $A_t$. Она перестанет быть точной, если добавить:
 \begin{itemize}[noitemsep]
     \item фиксированные операционные расходы;
     \item ограничения абсолютного размера баланса $A_t\le A_{\max}$;
@@ -569,8 +569,8 @@ Default indicator:
     \item быстрый рост $g_t$ увеличивает будущий портфель $A_{t+1}$;
     \item быстрый рост снижает спред новой выдачи $s(g_t)$;
     \item рост баланса увеличивает знаменатель $CAR=K/A$;
-    \item fixed-rate активы имеют медленный купон $c_t$, а депозитная стоимость равна текущему short rate $r_t$;
-    \item рост ставок снижает $NII_t=A_t(c_t-r_t)+r_tK_t$ и может проедать капитал;
+    \item fixed-rate активы имеют медленную среднюю ставку $\overline{R}_t$, а депозитная стоимость равна текущему short rate $r_t$;
+    \item рост ставок снижает $NII_t=A_t(\overline{R}_t-r_t)+r_tK_t$ и может проедать капитал;
     \item если capital ratio ниже $c^*$, дивиденды прекращаются;
     \item если capital ratio ниже $c_0$, банк попадает в default/resolution, и акционер получает recovery с дисконтом.
 \end{itemize}
@@ -581,7 +581,7 @@ Default indicator:
 \begin{enumerate}[noitemsep]
     \item добавить ограничение или cost на отрицательный/слишком малый $g_t$;
     \item добавить convexity/floor в функцию $s(g_t)$;
-    \item заменить один fixed coupon $c_t$ на maturity ladder или 2D-gap;
+    \item заменить одну среднюю ставку $\overline{R}_t$ на maturity ladder или 2D-gap;
     \item добавить налоги и операционные расходы;
     \item добавить credit losses;
     \item добавить ликвидность и оттоки депозитов;

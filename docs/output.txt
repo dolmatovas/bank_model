@@ -128,7 +128,7 @@ x1440.pfb><C:/Users/Alex/AppData/Local/Programs/MiKTeX/fonts/type1/public/cm-su
 per/sfrm1095.pfb><C:/Users/Alex/AppData/Local/Programs/MiKTeX/fonts/type1/publi
 c/cm-super/sfrm1728.pfb>
 Output written on "C:\Users\Alex\Notebooks\bank model\docs\pdfs\loan_trader_v2_
-reduced.pdf" (9 pages, 253292 bytes).
+reduced.pdf" (9 pages, 254305 bytes).
 SyncTeX written on C:\Users\Alex\Notebooks\bank model\docs\pdfs/loan_trader_v2_reduced.synctex.gz.
 Transcript written on "C:\Users\Alex\Notebooks\bank model\docs\aux_dir\loan_tra
 der_v2_reduced.log".
