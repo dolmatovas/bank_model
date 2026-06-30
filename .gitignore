@@ -225,3 +225,5 @@ __marimo__/
 docs/aux_dir
 *.gz
 docs/output.txt
+
+.DS_Store
