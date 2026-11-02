@@ -1,0 +1,215 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{fontspec}
+\setmainfont{DejaVuSerif.ttf}[Path=fonts/, BoldFont=DejaVuSerif-Bold.ttf, ItalicFont=DejaVuSerif-Italic.ttf, BoldItalicFont=DejaVuSerif-BoldItalic.ttf]
+\usepackage[russian]{babel}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=2.3cm]{geometry}
+\usepackage{microtype}
+\newcommand{\E}{\mathbb E}
+\newcommand{\Pp}{\mathbb P}
+\newcommand{\Qq}{\mathbb Q}
+\newcommand{\CE}{\operatorname{CE}}
+\newcommand{\MtM}{\operatorname{MtM}}
+\newcommand{\NII}{\operatorname{NII}}
+\title{Стационарная модель управления процентным риском банковской книги}
+\author{}
+\date{}
+\begin{document}
+\maketitle
+\vspace{-1.4cm}
+
+\paragraph{Баланс и состояние.}
+Время измеряется в годах, денежные величины --- в единицах баланса.
+Банк держит кредиты объёма $L_t$ и депозиты
+$D_t=\nu L_t$, где $L_0>0$ и $\nu>0$ заданы.
+Все кредиты амортизируются с интенсивностью $\mu>0$.
+Зададим интенсивность новой выдачи и темп чистого роста книги:
+\begin{equation}
+ I_t=(\mu+g_0)e^{-\chi(r_t-r_0)}L_t,\qquad
+ g(r)=(\mu+g_0)e^{-\chi(r-r_0)}-\mu,\qquad
+ dL_t=(I_t-\mu L_t)dt=g(r_t)L_tdt.
+ \label{eq:growth}
+\end{equation}
+Здесь $g_0\geq0$ --- рост при опорной ставке $r_0\geq0$,
+$\chi\geq0$ --- чувствительность новой выдачи к ставке.
+Следовательно, $L_t=L_0\exp(\int_0^t g(r_s)ds)$ зависит от истории
+ставки. При $\chi=0$ возвращается прежний случай $L_t=L_0e^{g_0t}$.
+Управление $f_t\in[0,1]$ есть доля \emph{новой выдачи} под
+фиксированную ставку; $1-f_t$ --- доля под плавающую ставку.
+Оно не совпадает с долей fixed в действующем портфеле.
+
+Полное абсолютное состояние есть $(L_t,X_t)$, где
+$X_t=(r_t,F_t,Y_t,E_t)$ содержит короткую ставку
+$r_t\geq0$, непогашенный fixed-остаток $0\leq F_t\leq L_t$,
+сумму годовых fixed-купонов и договорных float-спредов $Y_t\geq0$
+и бухгалтерский капитал $E_t\in\mathbb R$.
+Таким образом, $L_t-F_t$ --- float-остаток, а
+$C_t=E_t+D_t-L_t$ --- денежная позиция, которая может быть
+отрицательной. Агрегат $Y_t$ хранит эффект ставок и спредов,
+зафиксированных при прошлых выдачах; хранить каждый винтаж отдельно
+не требуется.
+
+\paragraph{Ставка и условия новой выдачи.}
+Под физической мерой $\Pp$ короткая ставка следует CIR-процессу
+\begin{equation}
+ dr_t=\kappa_P(\bar r_P-r_t)\,dt+\sigma\sqrt{r_t}\,dW_t^{\Pp}.
+ \label{eq:rate}
+\end{equation}
+Для ценообразования нового fixed-кредита отдельно задана мера $\Qq$
+с параметрами $\kappa_Q,\bar r_Q$ и той же $\sigma$.
+При $u\geq0$ положим
+\[
+ P_Q(r,u)=\E_r^{\Qq}
+ \exp\!\left(-\int_0^u r_s\,ds\right),\qquad
+ A_Q(r)=\int_0^\infty e^{-\mu u}P_Q(r,u)\,du.
+\]
+Если единица номинала амортизируется как $e^{-\mu u}$, то её
+купонный и основной потоки равны $(k+\mu)e^{-\mu u}\,du$.
+Следовательно, равенство приведённой стоимости номиналу даёт
+par-купон $A_Q(r)^{-1}-\mu$.
+Купон нового fixed-кредита и спред нового float-кредита задаются как
+\begin{equation}
+ k_F(r)=A_Q(r)^{-1}-\mu+s_F,\qquad
+ s_V(q)=s_V^0-\eta q,\quad q=1-f,\quad
+ 0\leq\eta\leq s_V^0 .
+ \label{eq:pricing}
+\end{equation}
+Float-кредит платит текущую базовую ставку $r_t$ плюс
+зафиксированный при выдаче спред $s_V(q)$.
+Параметр $\eta$ отражает снижение маржи при увеличении доли float
+в новой выдаче. В текущей калибровке $s_F=s_V^0$; это равенство
+\emph{надбавок}, а не полных купонов.
+
+\paragraph{Динамика книги и поток владельцу.}
+Из амортизации и новой выдачи непосредственно следуют
+\begin{align}
+ dF_t&=\bigl[I_tf_t-\mu F_t\bigr]dt, \label{eq:F}\\
+ dY_t&=\bigl[I_t\{f_tk_F(r_t)
+ +(1-f_t)s_V(1-f_t)\}-\mu Y_t\bigr]dt. \label{eq:Y}
+\end{align}
+При коэффициенте переноса ставки в депозитную стоимость
+$\beta\in[0,1]$, депозитном спреде $s_D$, добавочном спреде
+финансирования отрицательной денежной позиции $s_B$ и
+операционных расходах $\omega D_t$ чистый процентный доход и прибыль равны
+\begin{align}
+ n_t&=Y_t+r_t(L_t-F_t)+r_tC_t
+       -(\beta r_t+s_D)D_t-s_B(-C_t)^+, \label{eq:nii}\\
+ \Pi_t&=n_t-\omega D_t,\qquad z^+=\max(z,0). \label{eq:profit}
+\end{align}
+Акционер получает \emph{знаковый} поток $b_t=\alpha\Pi_t$,
+$0\leq\alpha\leq1$: при $\Pi_t<0$ он покрывает убыток.
+Оставшаяся доля меняет капитал:
+\begin{equation}
+ dE_t=(1-\alpha)\Pi_t\,dt. \label{eq:E}
+\end{equation}
+Жёсткого ограничения достаточности капитала нет.
+Величина $E_t/L_t$ --- модельное отношение капитала к кредитам,
+не регуляторный CAR с RWA в знаменателе.
+
+\paragraph{Автономная постановка и критерий.}
+Нормируем состояние на растущую книгу:
+$z_t=(r_t,a_t,y_t,e_t)=(r_t,F_t/L_t,Y_t/L_t,E_t/L_t)$.
+При $c=e+\nu-1$ обозначим прибыль на единицу кредитов
+\begin{equation}
+ p(z)=y+r(1-a)+rc-(\beta r+s_D)\nu
+       -s_B(-c)^+-\omega\nu. \label{eq:p}
+\end{equation}
+По правилу дифференцирования частного получаем автономную систему
+\begin{equation}
+ \begin{aligned}
+ dr_t&=\kappa_P(\bar r_P-r_t)\,dt+\sigma\sqrt{r_t}\,dW_t^{\Pp},\\
+ da_t&=(\mu+g(r_t))(f_t-a_t)\,dt,\\
+ dy_t&=(\mu+g(r_t))\{f_tk_F(r_t)
+               +(1-f_t)s_V(1-f_t)-y_t\}\,dt,\\
+ de_t&=\{(1-\alpha)p(z_t)-g(r_t)e_t\}\,dt .
+ \end{aligned} \label{eq:normalized}
+\end{equation}
+Искомая политика есть измеримая обратная связь $f_t=\pi(z_t)\in[0,1]$.
+
+Для случайного продолжения $Z$ введём условный энтропийный
+эквивалент
+\[
+ \CE_\gamma(Z\mid z)=
+ -\gamma^{-1}\log\E^{\Pp}[e^{-\gamma Z}\mid z],
+ \qquad \CE_0(Z\mid z)=\E^{\Pp}[Z\mid z].
+\]
+Это \emph{рекурсивная} оценка будущих выплат, а не однократный
+энтропийный эквивалент их суммы. Коэффициент риска в денежных
+единицах масштабируется как $\gamma_t=\bar\gamma/L_t$,
+$\bar\gamma\geq0$. Обозначим через $V(L,X)$ оптимальную
+бессрочную стоимость потока владельцу. В используемой одношаговой
+постановке для шага $h>0$
+\begin{equation}
+ V(L,X)=\sup_{f\in[0,1]}
+ \left\{B_{t,t+h}^{\mathrm{PV}}(L,X,f)
+ +e^{-r_th}\CE_{\gamma_t}
+   \bigl(V(L_{t+h},X_{t+h})\mid L_t=L,X_t=X,f\bigr)\right\}.
+ \label{eq:bellman}
+\end{equation}
+Здесь $B_{t,t+h}^{\mathrm{PV}}$ --- дисконтированный внутри шага
+поток $b$; после шага ставка обновляется по \eqref{eq:rate}.
+Терминального вознаграждения нет. Стационарная стоимость на единицу
+книги $v(z)=V(L,X)/L$ удовлетворяет
+\begin{equation}
+ v(z)=\sup_{f\in[0,1]}
+ \left\{\frac{B_{t,t+h}^{\mathrm{PV}}}{L_t}
+ +e^{-rh}G(r)
+ \CE_{\bar\gamma G(r)}\!
+ \bigl(v(z_{t+h})\mid z_t=z,f\bigr)\right\}.
+ \label{eq:normalized_bellman}
+\end{equation}
+Здесь $G(r)=\exp(g(r)h)$ в используемой схеме с фиксированием
+ставки внутри шага. Изменение параметра внутри $\CE$ следует из
+$V(L_{t+h},X_{t+h})=L_tG(r_t)v(z_{t+h})$.
+Дисконтирование идёт по рыночной короткой ставке $r_t$;
+дополнительной постоянной ставки дисконтирования нет.
+При $h\downarrow0$ формальное HJB-уравнение, если $v$ гладкая,
+имеет вид
+\begin{equation}
+ 0=\sup_{f\in[0,1]}
+ \left\{\alpha p+\mathcal L^f v-(r-g(r))v
+ -\frac{\bar\gamma}{2}\sigma^2r\,(\partial_r v)^2\right\},
+ \label{eq:hjb}
+\end{equation}
+где $\mathcal L^f$ --- генератор процесса \eqref{eq:normalized},
+включая $\tfrac12\sigma^2r\,\partial_{rr}v$.
+Уравнение \eqref{eq:normalized_bellman}, а не прямое решение
+\eqref{eq:hjb}, реализовано в текущем численном прототипе.
+
+\paragraph{Диагностические метрики процентного риска.}
+В состоянии $(t,X)$ фиксируем $L_t,D_t,F_t,Y_t,E_t,C_t$
+на следующий год, не допускаем погашений и новых выдач и
+сравниваем постоянные ставки $r$ и $r+\delta$,
+$\delta=0.01$. Тогда
+\begin{equation}
+ \Delta\NII_{1y}
+ =\delta\,[L_t-F_t+C_t-\beta D_t]\cdot1\text{ год}.
+ \label{eq:dnii}
+\end{equation}
+Рыночная стоимость \emph{существующего} баланса при немедленной
+переоценке, с депозитами по номиналу, равна
+\begin{equation}
+ \MtM(t,X)=C_t+L_t-F_t+
+       (Y_t+\mu F_t)A_Q(r_t)-D_t
+       =E_t-F_t+(Y_t+\mu F_t)A_Q(r_t).
+ \label{eq:mtm}
+\end{equation}
+Поэтому
+\begin{equation}
+ \Delta\MtM=(Y_t+\mu F_t)
+       [A_Q(r_t+\delta)-A_Q(r_t)].
+ \label{eq:dmtm}
+\end{equation}
+Наконец, оптимизированная метрика
+\begin{equation}
+ \Delta V=V(t,r_t+\delta,F_t,Y_t,E_t)
+          -V(t,r_t,F_t,Y_t,E_t) \label{eq:dv}
+\end{equation}
+переоценивает \emph{весь будущий} поток при дальнейшей
+обратной связи. Её нельзя трактовать как разность между
+управляемой и неуправляемой стратегиями: для такого вклада
+надо сравнить значения двух политик при том же функционале
+\eqref{eq:bellman}. Все три метрики здесь измерены в денежных
+единицах, но имеют разные горизонты и экономический смысл.
+
+\end{document}

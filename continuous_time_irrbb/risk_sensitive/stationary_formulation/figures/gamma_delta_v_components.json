@@ -1,0 +1,152 @@
+{
+  "parameters": {
+    "loans": 100.0,
+    "deposits": 90.0,
+    "loan_growth": 0.05,
+    "growth_reference_rate": 0.08,
+    "growth_rate_sensitivity": 5.0,
+    "amortization": 0.3333333333333333,
+    "kappa_p": 0.5,
+    "mean_rate_p": 0.08,
+    "kappa_q": 0.5,
+    "mean_rate_q": 0.08,
+    "rate_vol": 0.08,
+    "fixed_spread": 0.015,
+    "floating_spread_0": 0.015,
+    "floating_demand_slope": 0.01,
+    "deposit_beta": 0.35,
+    "deposit_spread": 0.005,
+    "operating_cost": 0.01,
+    "funding_spread": 0.02,
+    "dividend_fraction": 0.9,
+    "signed_owner_flow": true,
+    "quadrature_nodes": 64
+  },
+  "eta": 0.01,
+  "reference_state": [
+    0.08,
+    50.0,
+    5.230382297289803,
+    12.0
+  ],
+  "shock": 0.01,
+  "sweep_dir": "/Users/ilya/ChatGPT/IRRBB/continuous_time_irrbb/risk_sensitive/runs/stationary_gamma_eta_chi5",
+  "rows": [
+    {
+      "gamma": 0.0,
+      "components": [
+        -0.5740526890136266,
+        -11.110824649900053,
+        0.0,
+        0.16095635701819333
+      ],
+      "delta_v": -11.523920981895486,
+      "source_checkpoint": "/Users/ilya/ChatGPT/IRRBB/continuous_time_irrbb/risk_sensitive/runs/stationary_gamma_eta_chi5/g0_e0.01/stationary_solution.pt",
+      "J0_converged": false,
+      "Jgamma_converged": false,
+      "J0_diagnostics": {
+        "iteration": 1000,
+        "rmse": 0.013151511561045092,
+        "q95": 0.02792990434516866,
+        "anchor": 0.0303459107945514,
+        "drift": 0.005740637758208322,
+        "projection_rmse": 0.013132381753812537
+      },
+      "Jgamma_diagnostics": {
+        "iteration": 1000,
+        "rmse": 0.013151511561045092,
+        "q95": 0.02792990434516866,
+        "anchor": 0.0303459107945514,
+        "drift": 0.005740637758208322,
+        "projection_rmse": 0.013132381753812537
+      }
+    },
+    {
+      "gamma": 5.0,
+      "components": [
+        -0.5740526890136266,
+        -9.999586558222006,
+        6.218987325155126,
+        0.001132821621595781
+      ],
+      "delta_v": -4.353519100458911,
+      "source_checkpoint": "/Users/ilya/ChatGPT/IRRBB/continuous_time_irrbb/risk_sensitive/runs/stationary_gamma_eta_chi5/g5_e0.01/stationary_solution.pt",
+      "J0_converged": false,
+      "Jgamma_converged": false,
+      "J0_diagnostics": {
+        "iteration": 1000,
+        "rmse": 0.019529681301914608,
+        "q95": 0.040114564780316185,
+        "anchor": 0.04473140019018729,
+        "drift": 0.006921928841506997,
+        "projection_rmse": 0.019270939004205186
+      },
+      "Jgamma_diagnostics": {
+        "iteration": 1000,
+        "rmse": 0.007595257106936222,
+        "q95": 0.014501428667211507,
+        "anchor": 0.009682262090109361,
+        "drift": 0.003557509244700441,
+        "projection_rmse": 0.007810762837587888
+      }
+    },
+    {
+      "gamma": 10.0,
+      "components": [
+        -0.5740526890136266,
+        -9.233280016073877,
+        6.4376683047686925,
+        -0.005734726411503743
+      ],
+      "delta_v": -3.375399126730315,
+      "source_checkpoint": "/Users/ilya/ChatGPT/IRRBB/continuous_time_irrbb/risk_sensitive/runs/stationary_gamma_eta_chi5/g10_e0.01/stationary_solution.pt",
+      "J0_converged": false,
+      "Jgamma_converged": false,
+      "J0_diagnostics": {
+        "iteration": 1000,
+        "rmse": 0.019085407998095976,
+        "q95": 0.040359491578421114,
+        "anchor": 0.04582711638130377,
+        "drift": 0.015455475149281028,
+        "projection_rmse": 0.019706065087606566
+      },
+      "Jgamma_diagnostics": {
+        "iteration": 1000,
+        "rmse": 0.00985052422640575,
+        "q95": 0.021218412839777295,
+        "anchor": 0.02452220257009685,
+        "drift": 0.004347857750488515,
+        "projection_rmse": 0.010028355114327522
+      }
+    },
+    {
+      "gamma": 20.0,
+      "components": [
+        -0.5740526890136266,
+        -8.394239746801219,
+        6.315222298162993,
+        0.007586141968900506
+      ],
+      "delta_v": -2.6454839956829517,
+      "source_checkpoint": "/Users/ilya/ChatGPT/IRRBB/continuous_time_irrbb/risk_sensitive/runs/stationary_gamma_eta_chi5/g20_e0.01/stationary_solution.pt",
+      "J0_converged": false,
+      "Jgamma_converged": false,
+      "J0_diagnostics": {
+        "iteration": 1000,
+        "rmse": 0.015536656645169202,
+        "q95": 0.03392436278355715,
+        "anchor": 0.03310144423443262,
+        "drift": 0.01719146506394509,
+        "projection_rmse": 0.015775141727216207
+      },
+      "Jgamma_diagnostics": {
+        "iteration": 1000,
+        "rmse": 0.011515673164378383,
+        "q95": 0.019575918396712657,
+        "anchor": 0.03519265038241315,
+        "drift": 0.004128148523662389,
+        "projection_rmse": 0.011492104330413084
+      }
+    }
+  ]
+}

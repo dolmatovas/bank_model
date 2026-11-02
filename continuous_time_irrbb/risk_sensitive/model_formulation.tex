@@ -1,0 +1,193 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T2A]{fontenc}
+\usepackage[russian]{babel}
+\usepackage{amsmath,amssymb}
+\usepackage[margin=2.4cm]{geometry}
+\usepackage{microtype}
+\usepackage{enumitem}
+\setlist[itemize]{noitemsep,topsep=3pt}
+\title{Лаконичная динамическая модель банковской книги}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+\vspace{-1.5cm}
+
+\paragraph{Баланс и управление.}
+Объём кредитов $L>0$ и объём депозитов $D>0$ постоянны.
+Погашения кредитов непрерывно заменяются новыми выдачами того же объёма.
+Банк выбирает $f_t\in[0,1]$ --- долю \emph{новых} кредитов с фиксированной
+ставкой; доля новых кредитов с плавающей ставкой равна $q_t=1-f_t$.
+Обе части книги амортизируются с одной скоростью $\mu>0$.
+Состояние $X_t=(r_t,F_t,Y_t,E_t)$ состоит из короткой ставки $r_t$,
+остатка fixed-кредитов $F_t$, фиксированной части годового процентного
+дохода $Y_t$ и балансового капитала $E_t$. Остаток float-кредитов равен
+$L-F_t$, а денежная позиция $C_t=E_t+D-L$ может быть отрицательной.
+
+\paragraph{Ставки и цена новых кредитов.}
+Под физической мерой $\mathbb P$ ставка следует процессу
+\begin{equation}
+ dr_t=\kappa_P(\bar r_P-r_t)\,dt+\sigma\sqrt{r_t}\,dW_t^{\mathbb P}.
+ \label{eq:rate}
+\end{equation}
+Под мерой оценки $\mathbb Q$ параметры дрейфа могут быть иными:
+$\kappa_Q,\bar r_Q$; волатильность $\sigma$ та же. Если
+$P_Q(r,u)$ --- цена бескупонной облигации срока $u$, то
+\begin{equation}
+ A_\mu^Q(r)=\int_0^\infty e^{-\mu u}P_Q(r,u)\,du,
+ \qquad k_F(r)=\frac{1}{A_\mu^Q(r)}-\mu+s_F.
+ \label{eq:coupon}
+\end{equation}
+Действительно, fixed-кредит единичного номинала с купоном $k$ даёт поток
+$(k+\mu)e^{-\mu u}$, поэтому купон без спреда определяется условием
+$(k+\mu)A_\mu^Q(r)=1$. Величина $s_F$ добавляется сверх этого par-купона.
+Спред нового float-кредита зависит от доли float в новых выдачах:
+\begin{equation}
+ s_V(q)=s_V^0-\eta q,\qquad \eta\geq0,quad s_V^0\geq\eta.
+ \label{eq:spread}
+\end{equation}
+Его ставка в момент $t$ равна $r_t+s_V(q)$; спред фиксируется при выдаче,
+а базовая ставка пересматривается мгновенно. Равенство $s_F=s_V^0$
+означает равные \emph{надбавки}, но не равные номинальные купоны.
+
+\paragraph{Динамика книги и капитала.}
+В $Y_t$ входят купоны действующих fixed-кредитов и зафиксированные спреды
+действующих float-кредитов; начисление базовой ставки по float равно
+$r_t(L-F_t)$ и учитывается отдельно. При общей скорости амортизации
+агрегат $Y_t$ замыкает состояние без хранения всех исторических выдач:
+\begin{align}
+ dF_t&=\mu(Lf_t-F_t)\,dt,\label{eq:f}\
+ dY_t&=\mu\!\left[Lf_t k_F(r_t)
+       +L(1-f_t)s_V(1-f_t)-Y_t\right]dt.\label{eq:y}
+\end{align}
+Иными словами,
+\begin{equation}
+Y_t=e^{-\mu t}Y_0+\mu L\int_0^t e^{-\mu(t-s)}
+\bigl[f_s k_F(r_s)+(1-f_s)s_V(1-f_s)\bigr]ds.
+\label{eq:y-history}
+\end{equation}
+Переменная $Y_t$ --- достаточная статистика прошлых ставок выдачи:
+по одним только $r_t,F_t,E_t$ текущие фиксированные поступления
+восстановить нельзя.
+Пусть $\beta\in[0,1]$ --- чувствительность ставки по депозитам к $r$,
+$s_D$ --- депозитный спред, $s_B$ --- добавочный спред при отрицательном
+cash, а $\omega D$ --- операционные расходы. Годовой чистый процентный
+доход $n$, прибыль $\Pi$, дивиденды $d$ и капитал определены так:
+\begin{align}
+ n(X)&=Y+r(L-F)+rC-(\beta r+s_D)D-s_B(-C)^+,
+       \qquad C=E+D-L,\label{eq:nii}\
+ \Pi(X)&=n(X)-\omega D,\qquad
+ d(X)=\tfrac12\Pi(X)^+,\qquad
+ dE_t=\bigl[\Pi(X_t)-d(X_t)\bigr]dt.\label{eq:equity}
+\end{align}
+Здесь $(z)^+=\max(z,0)$. Жёсткого ограничения на капитал нет;
+$E_t$ может быть отрицательным. Отношение $E_t/L$ --- диагностический
+\emph{модельный} CAR, не нормативный коэффициент с RWA в знаменателе.
+
+\paragraph{Стоимость и цель управления.}
+Рыночная стоимость кредитов и немедленная стоимость ликвидации баланса:
+\begin{equation}
+ P_L(X)=L-F+(Y+\mu F)A_\mu^Q(r),\qquad
+ G(X)=C+P_L(X)-D=E-F+(Y+\mu F)A_\mu^Q(r).
+ \label{eq:mtm}
+\end{equation}
+Здесь депозиты погашаются по номиналу; поведенческой оценки вкладов нет.
+На конечном горизонте $T$ банк максимизирует рекурсивный энтропийный
+денежный эквивалент дивидендов и $G(X_T)$. Для политики $\pi$:
+\begin{align}
+ U_T^\pi&=G(X_T),\label{eq:terminal}\\
+ dU_t^\pi&=-\left[d(X_t)-r_tU_t^\pi
+             -\frac{\gamma}{2}|Z_t^\pi|^2\right]dt
+             +Z_t^\pi dW_t^{\mathbb P},\qquad \gamma\geq0,\label{eq:bsde}\\
+ V_\gamma(t,x)&=\sup_{\pi}U_t^\pi\big|_{X_t=x}.
+ \label{eq:objective}
+\end{align}
+Коэффициент $\gamma$ имеет размерность обратной денежной единицы;
+при $\gamma=0$ цель становится ожидаемой дисконтированной стоимостью.
+Дискретная реализация использует одношаговую рекурсию
+\begin{equation}
+ U_t\approx d(X_t)h+e^{-r_th}
+ \left[-\frac1\gamma\log\mathbb E_t^{\mathbb P}
+           e^{-\gamma U_{t+h}}\right],
+ \label{eq:bellman}
+\end{equation}
+с пределом $\mathbb E_t^{\mathbb P}U_{t+h}$ при $\gamma=0$.
+Это рекурсивный риск-функционал; при случайном дисконтировании он не
+тождественен однократному энтропийному эквиваленту суммы всех выплат.
+
+\paragraph{IRRBB-метрики при замороженном балансе.}
+В момент оценки $t$ фиксируем $F_t,Y_t,E_t,L,D$ и, следовательно,
+$C_t$ на \emph{весь следующий год}: нет погашений, новых выдач или
+управления книгой. Базовая ставка равна $r_t$, шоковая ---
+$r_t+\varepsilon$, $\varepsilon=0.01$ (100 базисных пунктов); обе
+остаются постоянными в течение года. Fixed-купоны не меняются, float,
+cash и депозиты немедленно переоцениваются. Тогда
+\begin{align}
+ NII_{1y}^{0}(t)&=n(r_t,F_t,Y_t,E_t)\cdot1\text{ год},\label{eq:nii0}\\
+ \Delta NII_{1y}^{+100}(t)
+   &=\varepsilon\,[L-F_t+C_t-\beta D]\cdot1\text{ год}.\label{eq:dnii}
+\end{align}
+Определение $\Delta NII$ не использует будущую оптимальную политику.
+Стоимость текущего баланса MtM (модельный аналог EVE) --- это $G(X_t)$.
+Для того же мгновенного шока \emph{короткой ставки} при неизменных
+$F_t,Y_t,E_t$:
+\begin{equation}
+ \Delta\mathrm{MtM}^{+100}(t)
+ = (Y_t+\mu F_t)
+ \left[A_\mu^Q(r_t+\varepsilon)-A_\mu^Q(r_t)\right].
+ \label{eq:dmtm}
+\end{equation}
+Изменение $r$ в модели CIR перестраивает всю $Q$-кривую, но не является
+буквальным параллельным сдвигом её доходностей на каждом сроке.
+Для такого сдвига вместо $A_\mu^Q(r+\varepsilon)$ следует использовать
+$\int_0^\infty e^{-(\mu+\varepsilon)u}P_Q(r,u)\,du$.
+
+\paragraph{Явные чувствительности к короткой ставке.}
+Все частные производные ниже берутся при фиксированных $F,Y,E,L,D$;
+они не учитывают реакцию будущей политики и изменение состава книги.
+Из \eqref{eq:nii0} немедленно следует
+\begin{equation}
+ \frac{\partial NII_{1y}^{0}}{\partial r}
+ =(L-F+C-\beta D)\cdot1\text{ год},
+ \qquad
+ \frac{\partial^2 NII_{1y}^{0}}{\partial r^2}=0.
+ \label{eq:nii-derivatives}
+\end{equation}
+Поэтому \eqref{eq:dnii} --- точная формула для конечного сдвига ставки,
+а не линейная аппроксимация.
+
+Для CIR-ценообразования $P_Q(r,u)=a_Q(u)e^{-B_Q(u)r}$, где при
+$h=\sqrt{\kappa_Q^2+2\sigma^2}$
+\begin{equation}
+ B_Q(u)=\frac{2(1-e^{-hu})}
+ {h+\kappa_Q+(h-\kappa_Q)e^{-hu}}>0.
+ \label{eq:cir-b}
+\end{equation}
+Обозначив $H=Y+\mu F\geq0$, из \eqref{eq:mtm} получаем
+\begin{align}
+ \frac{\partial\mathrm{MtM}}{\partial r}
+ &=-H\int_0^\infty e^{-\mu u}B_Q(u)P_Q(r,u)\,du\leq0,
+ \label{eq:mtm-delta}\\
+ \frac{\partial^2\mathrm{MtM}}{\partial r^2}
+ &=H\int_0^\infty e^{-\mu u}B_Q(u)^2P_Q(r,u)\,du\geq0.
+ \label{eq:mtm-gamma}
+\end{align}
+Таким образом, MtM падает при росте ставки и имеет положительную
+выпуклость. Конечный шок можно вычислить точно как
+\begin{equation}
+ \Delta\mathrm{MtM}^{+100}
+ =H\int_0^\infty e^{-\mu u}P_Q(r,u)
+       \bigl(e^{-\varepsilon B_Q(u)}-1\bigr)\,du,
+ \label{eq:mtm-exact-shock}
+\end{equation}
+или приблизить как $\varepsilon\,\partial_r\mathrm{MtM}
++\tfrac12\varepsilon^2\,\partial_{rr}\mathrm{MtM}$.
+В контрольном состоянии $(r,F,Y,E)=(0.08,50,5.625,12)$ при
+$L=100,D=90,\beta=0.35,\mu=1/3$ получаем
+$\Delta NII_{1y}^{+100}=+0.205$ денежных единиц. При
+$\kappa_Q=0.5,\bar r_Q=0.08,\sigma=0.08$ формула \eqref{eq:dmtm}
+даёт $\Delta\mathrm{MtM}^{+100}\approx-0.584$.
+
+\end{document}
